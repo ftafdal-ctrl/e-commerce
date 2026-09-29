@@ -1,5 +1,5 @@
 // ====== PENGATURAN TOKO (ubah sesuai kebutuhan) ======
-const WHATSAPP = "6281234567890"; // format internasional tanpa + atau 0 di depan
+const WHATSAPP = "081244047910"; // format internasional tanpa + atau 0 di depan
 // Tambahkan foto produk dengan mengisi "img": "images/nama-file.jpg"
 
 const PRODUCTS = [
