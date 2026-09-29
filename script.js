@@ -1,229 +1,86 @@
-  // Data Produk
-        const products = [
-            {
-                id: 1,
-                name: "Baje' Mandar",
-                category: "makanan",
-                price: 25000,
-                image: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=600&auto=format&fit=crop",
-                desc: "Kue tradisional dari beras ketan, gula merah asli, dan kelapa parut sangrai dengan cita rasa gurih khas."
-            },
-            {
-                id: 2,
-                name: "Golla Kambu",
-                category: "makanan",
-                price: 30000,
-                image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=600&auto=format&fit=crop",
-                desc: "Camilan khas berbahan dasar kacang tanah dan beras ketan, dibungkus unik menggunakan daun pisang kering."
-            },
-            {
-                id: 3,
-                name: "Minyak Mandar (VCO)",
-                category: "minyak",
-                price: 45000,
-                image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=600&auto=format&fit=crop",
-                desc: "Minyak kelapa murni diproses secara tradisional tanpa bahan kimia. Sangat baik untuk kesehatan dan kecantikan."
-            },
-            {
-                id: 4,
-                name: "Kue Paso",
-                category: "makanan",
-                price: 20000,
-                image: "https://images.unsplash.com/photo-1579372786545-d24232daf58c?q=80&w=600&auto=format&fit=crop",
-                desc: "Kue manis berbentuk paku/kerucut dengan isian gula merah cair meleleh di dalam bungkus daun pisang."
-            }
-        ];
+// ====== PENGATURAN TOKO (ubah sesuai kebutuhan) ======
+const WHATSAPP = "6281234567890"; // format internasional tanpa + atau 0 di depan
+// Tambahkan foto produk dengan mengisi "img": "images/nama-file.jpg"
 
-        let cart = [];
-        let currentCategory = 'all';
+const PRODUCTS = [
+  { id: 1, nama: "Baje Mandar", kat: "jajanan", pola: "sure", harga: 35000, desc: "Kudapan manis tradisional Mandar dari ketan, gula merah, dan kelapa. Kemasan 250 g.", img: "" },
+  { id: 2, nama: "Golla Kambu", kat: "jajanan", pola: "belah", harga: 25000, desc: "Kue ketan, gula merah, dan kelapa muda parut, dibungkus daun pisang kering. Isi 5 buah.", img: "" },
+  { id: 3, nama: "Kasippi", kat: "jajanan", pola: "garis", harga: 30000, desc: "Camilan tradisional khas Mandar, cocok untuk teman minum teh atau kopi. Kemasan 200 g.", img: "" },
+  { id: 4, nama: "Minyak Mandar", kat: "minyak", pola: "sure", harga: 60000, desc: "Minyak kelapa asli (lomo' Mandar) yang dimasak perlahan di atas tungku, beraroma khas. Botol 500 ml.", img: "" }
+];
+const KAT = { jajanan: "Kue & camilan", minyak: "Minyak Mandar" };
 
-        // Render Produk ke Grid
-        function renderProducts(items) {
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = '';
+const rupiah = n => "Rp" + n.toLocaleString("id-ID");
+const $ = id => document.getElementById(id);
+let cart = {};
+try { cart = JSON.parse(localStorage.getItem("mandar-cart")) || {}; } catch (e) { cart = {}; }
 
-            if(items.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Produk tidak ditemukan...</p>';
-                return;
-            }
+function save() { try { localStorage.setItem("mandar-cart", JSON.stringify(cart)); } catch (e) {} }
 
-            items.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <div class="product-img-wrapper">
-                        <span class="tag">${p.category === 'makanan' ? 'Kue' : 'Minyak'}</span>
-                        <img src="${p.image}" class="product-img" alt="${p.name}">
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">${p.name}</h3>
-                        <p class="product-desc">${p.desc}</p>
-                        <div class="product-bottom">
-                            <span class="product-price">Rp ${p.price.toLocaleString('id-ID')}</span>
-                            <div class="btn-group">
-                                <button class="btn-icon" onclick="openDetail(${p.id})"><i class="fa-regular fa-eye"></i></button>
-                                <button class="btn-add" onclick="addToCart(${p.id})">+ Keranjang</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
+function renderProducts(cat = "semua") {
+  const list = PRODUCTS.filter(p => cat === "semua" || p.kat === cat);
+  $("productGrid").innerHTML = list.map(p => `
+    <article class="card">
+      <div class="thumb ${p.pola}">
+        ${p.img ? `<img src="${p.img}" alt="${p.nama}" loading="lazy">` : ""}
+        <span class="tag">${KAT[p.kat]}</span>
+      </div>
+      <div class="info">
+        <h3>${p.nama}</h3>
+        <p>${p.desc}</p>
+        <div class="buy"><span class="price">${rupiah(p.harga)}</span>
+          <button class="add" data-id="${p.id}">Tambah</button></div>
+      </div>
+    </article>`).join("");
+}
 
-        // Filter Kategori
-        function filterCategory(cat, btn) {
-            currentCategory = cat;
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            filterProducts();
-        }
+function renderCart() {
+  const items = Object.entries(cart).map(([id, q]) => ({ ...PRODUCTS.find(p => p.id == id), q }));
+  const count = items.reduce((s, i) => s + i.q, 0);
+  const total = items.reduce((s, i) => s + i.q * i.harga, 0);
+  $("cartCount").textContent = count;
+  $("cartTotal").textContent = rupiah(total);
+  $("checkout").disabled = !count;
+  $("cartItems").innerHTML = items.length ? items.map(i => `
+    <div class="line">
+      <b>${i.nama}</b><span>${rupiah(i.q * i.harga)}</span>
+      <div class="qty"><button data-dec="${i.id}" aria-label="Kurangi">−</button>${i.q}<button data-inc="${i.id}" aria-label="Tambah">+</button></div>
+      <button class="remove" data-del="${i.id}">Hapus</button>
+    </div>`).join("") : `<p class="empty">Keranjang masih kosong. Pilih produk dulu.</p>`;
+  save();
+}
 
-        // Search & Combined Filter
-        function filterProducts() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = products.filter(p => {
-                const matchCategory = currentCategory === 'all' || p.category === currentCategory;
-                const matchSearch = p.name.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query);
-                return matchCategory && matchSearch;
-            });
-            renderProducts(filtered);
-        }
+function toggleCart(open) {
+  $("drawer").classList.toggle("open", open);
+  $("drawer").setAttribute("aria-hidden", !open);
+  $("overlay").hidden = !open;
+}
 
-        // Cart Logic
-        function addToCart(id) {
-            const product = products.find(p => p.id === id);
-            const existItem = cart.find(item => item.id === id);
+document.addEventListener("click", e => {
+  const t = e.target;
+  if (t.dataset.cat) {
+    document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c === t));
+    renderProducts(t.dataset.cat);
+  }
+  if (t.classList.contains("add")) { cart[t.dataset.id] = (cart[t.dataset.id] || 0) + 1; renderCart(); toggleCart(true); }
+  if (t.dataset.inc) { cart[t.dataset.inc]++; renderCart(); }
+  if (t.dataset.dec) { if (--cart[t.dataset.dec] < 1) delete cart[t.dataset.dec]; renderCart(); }
+  if (t.dataset.del) { delete cart[t.dataset.del]; renderCart(); }
+});
 
-            if (existItem) {
-                existItem.qty++;
-            } else {
-                cart.push({ ...product, qty: 1 });
-            }
+$("openCart").onclick = () => toggleCart(true);
+$("closeCart").onclick = $("overlay").onclick = () => toggleCart(false);
+document.addEventListener("keydown", e => { if (e.key === "Escape") toggleCart(false); });
 
-            updateCartUI();
-            toggleCart(true); // Auto Buka Cart
-        }
+$("checkout").onclick = () => {
+  const lines = Object.entries(cart).map(([id, q]) => {
+    const p = PRODUCTS.find(x => x.id == id);
+    return `- ${p.nama} x${q} = ${rupiah(p.harga * q)}`;
+  });
+  const total = Object.entries(cart).reduce((s, [id, q]) => s + PRODUCTS.find(x => x.id == id).harga * q, 0);
+  const pesan = `Halo Oleh Oleh Khas Mandar, saya ingin memesan:\n${lines.join("\n")}\n\nTotal: ${rupiah(total)}\nMohon info ongkir dan cara pembayaran.`;
+  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(pesan)}`, "_blank");
+};
 
-        function updateCartQty(id, change) {
-            const item = cart.find(i => i.id === id);
-            if(item) {
-                item.qty += change;
-                if(item.qty <= 0) {
-                    cart = cart.filter(i => i.id !== id);
-                }
-            }
-            updateCartUI();
-        }
-
-        function updateCartUI() {
-            const cartItemsContainer = document.getElementById('cartItems');
-            const cartCount = document.getElementById('cart-count');
-            const cartTotal = document.getElementById('cartTotal');
-
-            // Count Badge
-            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-            cartCount.innerText = totalQty;
-
-            // Total Price
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            cartTotal.innerText = `Rp ${totalPrice.toLocaleString('id-ID')}`;
-
-            // Render Items
-            cartItemsContainer.innerHTML = '';
-            if(cart.length === 0) {
-                cartItemsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 2rem;">Keranjang Anda kosong.</p>';
-                return;
-            }
-
-            cart.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'cart-item';
-                div.innerHTML = `
-                    <img src="${item.image}" class="cart-item-img">
-                    <div class="cart-item-details">
-                        <div class="cart-item-title">${item.name}</div>
-                        <div class="cart-item-price">Rp ${(item.price * item.qty).toLocaleString('id-ID')}</div>
-                        <div class="qty-controls">
-                            <button class="qty-btn" onclick="updateCartQty(${item.id}, -1)">-</button>
-                            <span style="font-size: 0.85rem; font-weight:700;">${item.qty}</span>
-                            <button class="qty-btn" onclick="updateCartQty(${item.id}, 1)">+</button>
-                        </div>
-                    </div>
-                `;
-                cartItemsContainer.appendChild(div);
-            });
-        }
-
-        // Toggle Drawer / Modal
-        function toggleCart(forceOpen = false) {
-            const drawer = document.getElementById('cartDrawer');
-            const overlay = document.getElementById('overlay');
-            if(forceOpen || !drawer.classList.contains('open')) {
-                drawer.classList.add('open');
-                overlay.classList.add('active');
-            } else {
-                drawer.classList.remove('open');
-                overlay.classList.remove('active');
-            }
-        }
-
-        function openDetail(id) {
-            const p = products.find(prod => prod.id === id);
-            document.getElementById('modalTitle').innerText = p.name;
-            document.getElementById('modalCategory').innerText = p.category.toUpperCase();
-            document.getElementById('modalDesc').innerText = p.desc;
-            
-            document.getElementById('detailModal').classList.add('active');
-            document.getElementById('overlay').classList.add('active');
-        }
-
-        function closeAll() {
-            document.getElementById('cartDrawer').classList.remove('open');
-            document.getElementById('detailModal').classList.remove('active');
-            document.getElementById('overlay').classList.remove('active');
-        }
-
-        function toggleFaq(element) {
-            element.classList.toggle('active');
-        }
-
-        // Checkout WA
-        function checkoutWA() {
-            if(cart.length === 0) return alert("Keranjang belanjaan masih kosong!");
-
-            let message = "Halo MandarStore! Saya ingin memesan produk berikut:\n\n";
-            cart.forEach(i => {
-                message += `• ${i.name} (${i.qty}x) = Rp ${(i.price * i.qty).toLocaleString('id-ID')}\n`;
-            });
-            
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            message += `\n*Total Belanja:* Rp ${total.toLocaleString('id-ID')}`;
-            message += `\n\nMohon info rekening dan ongkos kirim. Terima kasih!`;
-
-            const phone = "6281234567890"; // Ganti nomor Anda di sini
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
-        }
-
-        // Dynamic Live Sales Popup Animation
-        const buyers = ["Ahmad dari Polewali", "Nur dari Majene", "Rina dari Mamuju", "Budi dari Makassar"];
-        function showLivePopup() {
-            const popup = document.getElementById('livePopup');
-            const text = document.getElementById('popupText');
-            
-            const randomBuyer = buyers[Math.floor(Math.random() * buyers.length)];
-            const randomProduct = products[Math.floor(Math.random() * products.length)].name;
-            
-            text.innerText = `${randomBuyer} - ${randomProduct}`;
-            popup.classList.add('show');
-
-            setTimeout(() => {
-                popup.classList.remove('show');
-            }, 4000);
-        }
-
-        // Initialization
-        window.onload = () => {
-            renderProducts(products);
-            setInterval(showLivePopup, 9000); // Popup muncul setiap 9 detik
-        };
+renderProducts();
+renderCart();
