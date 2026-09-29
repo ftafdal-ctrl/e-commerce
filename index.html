@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oleh-Oleh Khas Mandar | Cita Rasa Otentik Sulawesi Barat</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    
+</head>
+<body>
+
+    <!-- Bar Pengumuman Top -->
+    <div class="announcement-bar">
+        🎉 Promo Spesial: Gratis Ongkir Khusus Wilayah Sulawesi Barat untuk Minimal Pembelian Rp 100.000!
+    </div>
+
+    <!-- Header Navigation -->
+    <header>
+        <nav class="navbar">
+            <a href="#" class="logo">
+                <i class="fa-solid fa-basket-shopping"></i> MandarStore
+            </a>
+            <button class="cart-trigger" onclick="toggleCart()">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Keranjang</span>
+                <span class="cart-badge" id="cart-count">0</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <span class="hero-badge"><i class="fa-solid fa-award"></i> 100% Produk Lokal Otentik</span>
+        <h1>Cita Rasa Asli Mandar<br>Langsung ke Rumah Anda</h1>
+        <p>Nikmati jajanan tradisional resep leluhur dan Minyak Kelapa Murni (VCO) khas Sulawesi Barat berkualitas tinggi.</p>
+    </section>
+
+    <!-- Controls: Search & Filter -->
+    <div class="controls-container">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Cari oleh-oleh (misal: Baje, VCO...)" onkeyup="filterProducts()">
+        </div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterCategory('all', this)">Semua</button>
+            <button class="filter-btn" onclick="filterCategory('makanan', this)">Kue & Jajanan</button>
+            <button class="filter-btn" onclick="filterCategory('minyak', this)">Minyak & Kesehatan</button>
+        </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="container">
+        <div class="product-grid" id="productGrid">
+            <!-- Produk akan dirender oleh JavaScript -->
+        </div>
+    </div>
+
+    <!-- Section FAQ -->
+    <div class="faq-section">
+        <h2 style="text-align: center; margin-bottom: 2rem;">Pertanyaan Sering Diajukan (FAQ)</h2>
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-question">Berapa lama daya tahan jajanan Baje & Golla Kambu? <i class="fa-solid fa-chevron-down"></i></div>
+            <div class="faq-answer">Jajanan kami dibuat segar tanpa bahan pengawet sintesis. Dalam suhu ruangan bisa bertahan hingga 2-3 minggu.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-question">Bagaimana cara pengirimannya? <i class="fa-solid fa-chevron-down"></i></div>
+            <div class="faq-answer">Kami bekerjasama dengan ekspedisi JNE, J&T, dan Pos Indonesia. Pengiriman dibungkus aman menggunakan *bubble wrap* tebal.</div>
+        </div>
+    </div>
+
+    <!-- Overlay Background -->
+    <div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+    <!-- Cart Drawer Modal -->
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <h3>Keranjang Belanja</h3>
+            <button class="btn-icon" onclick="toggleCart()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="cart-body" id="cartItems">
+            <!-- Item keranjang dimasukkan via JS -->
+        </div>
+        <div class="cart-footer">
+            <div class="total-row">
+                <span>Total:</span>
+                <span id="cartTotal">Rp 0</span>
+            </div>
+            <button class="btn-checkout" onclick="checkoutWA()">
+                <i class="fa-brands fa-whatsapp"></i> Pesan Via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Detail Produk -->
+    <div class="modal" id="detailModal">
+        <h3 id="modalTitle" style="margin-bottom: 0.5rem;"></h3>
+        <p id="modalCategory" style="color: var(--primary); font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem;"></p>
+        <p id="modalDesc" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;"></p>
+        <button class="btn-add" style="width:100%" onclick="closeAll()">Tutup Detail</button>
+    </div>
+
+    <!-- Live Sales Notification Popup -->
+    <div class="live-popup" id="livePopup">
+        <div class="live-popup-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+        <div>
+            <div id="popupText" style="font-size: 0.85rem; font-weight: 700;"></div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Baru saja membeli</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 MandarStore - Oleh-Oleh Khas Sulawesi Barat. Hak Cipta Dilindungi.</p>
+    </footer>
+<script src="script.js"></script>
+    <!-- JavaScript logic -->
+   
+</body>
+</html>
